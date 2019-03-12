@@ -1,0 +1,79 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <title> BookShare </title>
+	<meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+</head>
+
+<body>
+    <div class="topnav">
+        <a class="active" href="index.html">Home</a>
+        <a href="map.html">Map</a>
+    
+    </div>
+    <div class= "search">
+        <input id = "input" type="text" placeholder="Book Search.."></input>
+        <button onclick = "searchBooks()"> Search</button>
+    </div>
+    <div class= "search">
+            <textarea id= "output" rows ="10" cols ="50" placeholder="Results"> </textarea>
+            
+    </div>
+	<div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+        
+    <script>
+        function searchBooks(){
+            const Http = new XMLHttpRequest();
+            const textInput = document.getElementById("input").value;
+            const url= 'https://www.googleapis.com/books/v1/volumes?q='+textInput+'&projection=lite&key=AIzaSyDDok3of1SNd35HTldb7ylAsrTcX8PjR_I';
+            Http.open("GET", url);
+            Http.send();
+            Http.onreadystatechange=(e)=>{
+            
+            var textOutput = Http.responseText.toString()
+			textOutput = textOutput.replace(/{/g,"")
+			textOutput = textOutput.replace(/ +(?= )/g,'');
+			//textOutput = textOutput.replace(/[[]/g,"")
+			textOutput = textOutput.replace(/["']/g, "")
+			textOutput = textOutput.replace(/volumeInfo/g,"")
+			textOutput = textOutput.replace(/:/g,"")
+			textOutput = textOutput.replace(/\t/g, '');
+			var textOutputFinal = "";
+			var textArray = textOutput.split(",")
+		
+			console.log("For Loop")
+			for (var i=0; i < textArray.length; i++ ){
+				
+				if (textArray[i].includes("title") || textArray[i].includes("author") ||textArray[i].includes(" id ") || textArray[i].includes(" etag ")){
+					
+					textOutputFinal = textOutputFinal + textArray[i].replace(/ /,'').trim() + "\n";
+					console.log("Appending")
+					
+					
+				}
+			}
+			
+			//console.log(textOutput)
+		
+            document.getElementById("output").innerHTML = textOutputFinal
+            }
+        }
+		function onSignIn(googleUser) {
+        // Useful data for your client-side scripts:
+        var profile = googleUser.getBasicProfile();
+        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+        console.log('Full Name: ' + profile.getName());
+        console.log('Given Name: ' + profile.getGivenName());
+        console.log('Family Name: ' + profile.getFamilyName());
+        console.log("Image URL: " + profile.getImageUrl());
+        console.log("Email: " + profile.getEmail());
+
+        // The ID token you need to pass to your backend:
+        var id_token = googleUser.getAuthResponse().id_token;
+        console.log("ID Token: " + id_token);
+      }
+    </script>
+
+	
+</body>
